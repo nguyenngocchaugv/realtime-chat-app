@@ -37,7 +37,7 @@ const resolvers = {
           }
         });
 
-        if (!existingUser) {
+        if (existingUser) {
           return {
             error: "Username already taken. Try another"
           };

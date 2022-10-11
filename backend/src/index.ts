@@ -36,10 +36,12 @@ async function main() {
     cache: 'bounded',
     context: async ({ req, res }): Promise<GraphQLContext> => {
       // const session1 = await getSession({ req });
+      // console.log('first', session1)
 
       return {
         session: { // Fake data
           "user": {
+            "id": "633ffd4bc75f303ef4035d12",
             "name": "Ngoc Chau Nguyen",
             "email": "shinyucr3@gmail.com",
             "image": "https://lh3.googleusercontent.com/a/ALm5wu3K81LpBmxyjHnsKiIWVfat3J8P0Q-1ixcxuR7S=s96-c"
