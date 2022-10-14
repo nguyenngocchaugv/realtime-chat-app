@@ -19,6 +19,7 @@ export default NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
+      // console.log('jtwuser-----------------------', user);
       if (user) {
         token.userId = user.id;
       }
@@ -26,15 +27,28 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = jwt.sign(
-        {
-          id: token.userId,
-        },
-        process.env.NEXTAUTH_SECRET || 'gCtvpTciwl/nPSvvWQrqn+kIXB7A/SpvRXX5CtfJNDI=',
-        { expiresIn: '7d' },
-      );
+      const user = await prisma.user.findUnique({
+        where: {
+          id: token.userId as string,
+        }
+      });
 
-      return session;
-    }
-  }
+        session.user =  {
+          ...session.user,
+          username: user?.username || ""
+        }
+
+
+      return {
+        ...session,
+        accessToken: jwt.sign(
+          {
+            id: token.userId,
+          },
+          process.env.NEXTAUTH_SECRET || 'gCtvpTciwl/nPSvvWQrqn+kIXB7A/SpvRXX5CtfJNDI=',
+          { expiresIn: '7d' },
+        ),
+      };
+    },
+  },
 });

@@ -13,7 +13,7 @@ const Home: NextPage = () => {
     document.dispatchEvent(event);
   };
 
-  // console.log('session', session)
+  console.log('session', session)
 
   return (
     <Box>
