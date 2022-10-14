@@ -2,7 +2,7 @@ import { ISODateString } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 
 export interface GraphQLContext {
-  session: Session | null;
+  user: User | null;
   prisma: PrismaClient;
 }
 

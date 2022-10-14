@@ -2,10 +2,10 @@ import { useMutation } from '@apollo/client';
 import { Button, Center, Image, Input, Stack, Text } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { signIn } from 'next-auth/react';
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
+import toast from 'react-hot-toast';
 import UserOperations from '../../graphql/operations/user';
 import { CreateUsernameData, CreateUsernameVariables } from '../../util/types';
-import toast from 'react-hot-toast';
 
 type IAuthProps = {
   session: Session | null;
@@ -59,12 +59,16 @@ const Auth: FC<IAuthProps> = ({
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-            <Button width="100%" onClick={onSubmit}>Save</Button>
+            <Button width="100%" onClick={onSubmit} isLoading={loading}>Save</Button>
           </>
         ) : (
           <>
             <Text fontSize="3xl">MessengerQL</Text>
-            <Button onClick={() => signIn("google")} leftIcon={<Image height="20px" src="/images/googlelogo.png" />}>Continure with Google</Button>
+            <Button
+              onClick={() => signIn("google")}
+              leftIcon={<Image height="20px" src="/images/googlelogo.png" />}>
+              Continue with Google
+            </Button>
           </>
         )}
       </Stack>

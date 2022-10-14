@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../lib/prismadb';
+import jwt from 'jsonwebtoken';
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -12,17 +13,28 @@ export default NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
-    async session({ session, token, user }) {
-      console.log('callback', user);
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          ...user,
+    async jwt({ token, user }) {
+      if (user) {
+        token.userId = user.id;
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = jwt.sign(
+        {
+          id: token.userId,
         },
-        customProperty: 'Chau Nguyen'
-      };
+        process.env.NEXTAUTH_SECRET || 'gCtvpTciwl/nPSvvWQrqn+kIXB7A/SpvRXX5CtfJNDI=',
+        { expiresIn: '7d' },
+      );
+
+      return session;
     }
   }
 });

@@ -9,9 +9,10 @@ import http from 'http';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import * as dotenv from 'dotenv';
-import { GraphQLContext } from './util/types';
+import { GraphQLContext, User } from './util/types';
 // import { getSession } from 'next-auth/react';
 import { PrismaClient } from '@prisma/client';
+import { getUser } from './util/functions';
 
 async function main() {
   dotenv.config();
@@ -37,17 +38,10 @@ async function main() {
     context: async ({ req, res }): Promise<GraphQLContext> => {
       // const session1 = await getSession({ req });
       // console.log('first', session1)
+      const user = await getUser(req) as User;
 
       return {
-        session: { // Fake data
-          "user": {
-            "id": "633ffd4bc75f303ef4035d12",
-            "name": "Ngoc Chau Nguyen",
-            "email": "shinyucr3@gmail.com",
-            "image": "https://lh3.googleusercontent.com/a/ALm5wu3K81LpBmxyjHnsKiIWVfat3J8P0Q-1ixcxuR7S=s96-c"
-          },
-          "expires": "2022-11-09T13:01:45.614Z"
-        },
+        user,
         prisma,
       };
     },
