@@ -19,7 +19,6 @@ export default NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      // console.log('jtwuser-----------------------', user);
       if (user) {
         token.userId = user.id;
       }

@@ -30,7 +30,7 @@ const ConversationList: FC<ConversationListProps> = ({
         </Text>
       </Box>
       
-      <ConversationModal isOpen onClose={onClose} />
+      <ConversationModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };
