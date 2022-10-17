@@ -1,27 +1,37 @@
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,
   Input,
   Modal, ModalBody, ModalCloseButton,
   ModalContent, ModalHeader, ModalOverlay, Stack
 } from '@chakra-ui/react';
+import { Session } from 'next-auth';
 import { FC, FormEvent, useState } from 'react';
 import toast from 'react-hot-toast';
+import ConversationOperations from '../../../../graphql/operations/conversation';
 import UserOperations from '../../../../graphql/operations/user';
-import { SearchedUser, SearchUsersData, SearchUsersInput } from '../../../../util/types';
+import {
+  CreateConversationData,
+  CreateConversationInput, SearchedUser,
+  SearchUsersData,
+  SearchUsersInput
+} from '../../../../util/types';
 import Participants from './Participants';
 import UserSearchList from './UserSearchList';
 
 
 type ConversationModalProps = {
+  session: Session;
   isOpen: boolean;
   onClose: () => void;
 };
 
 const ConversationModal: FC<ConversationModalProps> = ({
+  session,
   isOpen,
-  onClose
+  onClose,
 }) => {
+  const { user: { id } } = session;
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<SearchedUser[]>([]);
   const [searchUsers, { data, loading, error }] = useLazyQuery<
@@ -29,9 +39,19 @@ const ConversationModal: FC<ConversationModalProps> = ({
     SearchUsersInput
   >(UserOperations.Queries.searchUsers);
 
-  const onCreateConversation = async () => {
-    try {
+  const [createConversation, { loading: createConversationLoading }] = useMutation<
+    CreateConversationData,
+    CreateConversationInput
+  >(ConversationOperations.Mutations.createConversation);
 
+  const onCreateConversation = async () => {
+    const participantIds = [id, ...participants.map(p => p.id)];
+    try {
+      const { data } = await createConversation({
+        variables: {
+          participantIds,
+        }
+      });
     } catch (error: any) {
       console.log('onCreateConversation error', error);
       toast.error(error?.message);
@@ -89,7 +109,8 @@ const ConversationModal: FC<ConversationModalProps> = ({
                   width="100%"
                   mt={6}
                   _hover={{ bg: "brand.100" }}
-                  onClick={() => { }}
+                  isLoading={createConversationLoading}
+                  onClick={onCreateConversation}
                 >
                   Create Conversation
                 </Button>

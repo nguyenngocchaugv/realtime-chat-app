@@ -32,11 +32,11 @@ export default NextAuth({
         }
       });
 
-        session.user =  {
-          ...session.user,
-          username: user?.username || ""
-        }
-
+      session.user = {
+        ...session.user,
+        id: user?.id || "",
+        username: user?.username || ""
+      };
 
       return {
         ...session,
