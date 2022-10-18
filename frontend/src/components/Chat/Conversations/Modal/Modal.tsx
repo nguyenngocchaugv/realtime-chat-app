@@ -52,6 +52,8 @@ const ConversationModal: FC<ConversationModalProps> = ({
           participantIds,
         }
       });
+
+      console.log('HERE is DATA', data);
     } catch (error: any) {
       console.log('onCreateConversation error', error);
       toast.error(error?.message);
