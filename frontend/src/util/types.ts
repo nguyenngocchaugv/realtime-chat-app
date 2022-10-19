@@ -47,7 +47,7 @@ export interface Conversation {
 }
 
 export interface ConversationData {
-  conversation: Conversation[];
+  conversations: Conversation[];
 }
 
 export interface CreateConversationData {

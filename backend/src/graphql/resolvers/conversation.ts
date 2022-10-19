@@ -1,6 +1,7 @@
 import { ConversationParticipant, Prisma } from '@prisma/client';
 import { ApolloError } from 'apollo-server-core';
 import { ConversationPopulated, GraphQLContext } from '../../util/types';
+import { withFilter } from 'graphql-subscriptions';
 
 const resolvers = {
   Query: {
@@ -53,7 +54,7 @@ const resolvers = {
       _: any,
       args: { participantIds: string[]; },
       context: GraphQLContext): Promise<{ conversationId: string; }> => {
-      const { user, prisma } = context;
+      const { user, prisma, pubsub } = context;
       const { participantIds } = args;
 
       if (!user) {
@@ -78,6 +79,9 @@ const resolvers = {
         });
 
         // Emit a CONVERSATION_CREATED event using pubsub
+        pubsub.publish('CONVERSATION_CREATED', {
+          conversationCreated: conversation
+        });
 
         return {
           conversationId: conversation.id
@@ -88,8 +92,39 @@ const resolvers = {
       }
     },
   },
+  Subscription: {
+    conversationCreated: {
+      // subscribe: (_: any, __: any, context: GraphQLContext) => {
+      //   const { pubsub } = context;
 
+      //   return pubsub.asyncIterator(['CONVERSATION_CREATED']);
+      // }
+      subscribe: withFilter(
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
+
+          return pubsub.asyncIterator(['CONVERSATION_CREATED']);
+        },
+        (
+          payload: ConversationCreatedSubscriptionPayload,
+          _,
+          context: GraphQLContext
+        ) => {
+          const { user } = context;
+          const { conversationCreated: { participants } } = payload;
+
+          const userIsParticipant = !!participants.find(p => p.userId === user?.id);
+
+          return userIsParticipant;
+        }
+      )
+    }
+  }
 };
+
+export interface ConversationCreatedSubscriptionPayload {
+  conversationCreated: ConversationPopulated;
+}
 
 export const participantPopulated = Prisma.validator<Prisma.ConversationParticipantInclude>()({
   user: {

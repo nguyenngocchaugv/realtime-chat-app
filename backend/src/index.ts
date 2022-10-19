@@ -42,12 +42,12 @@ async function main() {
   // Save the returned server's info so we can shutdown this server later
   const serverCleanup = useServer({
     schema, context: async (ctx: SubscriptionContext): Promise<GraphQLContext> => {
-      if (ctx.connectionParams && ctx.connectionParams.session) {
+      if (ctx.connectionParams && ctx.connectionParams?.session?.user) {
         const { session } = ctx.connectionParams;
         console.log('session serverCleanup', session);
-        // const 
+        const user = session.user as User;
 
-        return { user: null, prisma, pubsub };
+        return { user, prisma, pubsub };
       }
 
       return { user: null, prisma, pubsub };
