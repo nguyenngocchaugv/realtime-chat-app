@@ -1,15 +1,29 @@
+import { Flex } from '@chakra-ui/react';
 import { Session } from 'next-auth';
+import { useRouter } from 'next/router';
 import { FC } from 'react';
 
 type FeedWrapperProps = {
-  session: Session
+  session: Session;
 };
 
 const FeedWrapper: FC<FeedWrapperProps> = ({
   session
 }) => {
+  const router = useRouter();
+
+  const { conversationId } = router.query;
+
   return (
-    <div>FeedWrapper</div>
+    <Flex display={{ base: conversationId ? 'flex' : 'none', md: "flex" }} width="100%" direction="column">
+      {conversationId ? (
+        <Flex>
+
+        </Flex>
+      ) : (
+        <div>No conversation selected</div>
+      )}
+    </Flex>
   );
 };
 

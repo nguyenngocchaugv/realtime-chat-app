@@ -28,6 +28,28 @@ export interface SearchedUser {
 /**
  * Conversations
  */
+export interface Conversation {
+  id: string;
+  participants: {
+    hasSeenLatestMessage: boolean;
+    user: {
+      id: string;
+      username: string;
+    };
+  }[],
+  latestMessage: {
+    sender: {
+      id: string;
+      username: string;
+    }
+  };
+  updatedAt: string;
+}
+
+export interface ConversationData {
+  conversation: Conversation[];
+}
+
 export interface CreateConversationData {
   createConversation: {
     conversationId: string;
