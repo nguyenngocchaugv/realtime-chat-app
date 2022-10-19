@@ -4,7 +4,8 @@ import { Session } from 'next-auth';
 import { FC, useEffect } from 'react';
 import ConversationList from './ConversationList';
 import ConversationOperations from '../../../graphql/operations/conversation';
-import { ConversationData } from '../../../util/types';
+import { ConversationsData } from '../../../util/types';
+import { useRouter } from 'next/router';
 
 type ConversationsWrapperProps = {
   session: Session;
@@ -13,14 +14,27 @@ type ConversationsWrapperProps = {
 const ConversationsWrapper: FC<ConversationsWrapperProps> = ({
   session
 }) => {
+  const router = useRouter();
+  const { query: { conversationId } } = router;
   const {
-    data: conversationData,
+    data: conversationsData,
     error: conversationError,
     loading: conversationLoading,
     subscribeToMore
-  } = useQuery<ConversationData, null>(
+  } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
+
+  const onViewConversation = async (conversationId: string) => {
+    /**
+     * 1. Push the conversationId to the router query params
+     */
+    router.push({ query: { conversationId } });
+
+    /**
+     * 2. Mark the conversation as read
+     */
+  };
 
   const subscribeToNewConversations = () => {
     subscribeToMore({
@@ -28,15 +42,15 @@ const ConversationsWrapper: FC<ConversationsWrapperProps> = ({
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
-        console.log('updateQuery', subscriptionData)
+        // console.log('updateQuery', subscriptionData)
 
         const newConversation = (subscriptionData.data as any)?.conversationCreated;
 
         return Object.assign({}, prev, {
           conversations: [newConversation, ...prev.conversations]
-        })
+        });
       }
-    })
+    });
   };
 
   /**
@@ -45,13 +59,23 @@ const ConversationsWrapper: FC<ConversationsWrapperProps> = ({
   useEffect(() => {
     subscribeToNewConversations();
   }, []);
-  
 
-  console.log('conversationData', conversationData);
+
+  // console.log('conversationData', conversationData);
 
   return (
-    <Box width={{ base: '100%', md: '400px' }} bg="whiteAlpha.50" py={6} px={3}>
-      <ConversationList session={session} conversations={conversationData?.conversations || []} />
+    <Box
+      display={{ base: conversationId ? 'none' : 'flex', md: "flex" }}
+      width={{ base: '100%', md: '400px' }}
+      bg="whiteAlpha.50"
+      py={6}
+      px={3}
+    >
+      <ConversationList
+        session={session}
+        conversations={conversationsData?.conversations || []}
+        onViewConversation={onViewConversation}
+      />
     </Box>
   );
 };

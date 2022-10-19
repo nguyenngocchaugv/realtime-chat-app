@@ -46,7 +46,7 @@ export interface Conversation {
   updatedAt: string;
 }
 
-export interface ConversationData {
+export interface ConversationsData {
   conversations: Conversation[];
 }
 
